@@ -1,15 +1,20 @@
 import React,{useState} from "react";
-import { Routes, Route } from "react-router-dom"
 import Home from "./Components/Pages/Home";
-import Navbar from "./Components/Navbar/Navbar";
-import Login from "./Components/Modal/Login";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Details from "./Components/Details/Details";
+
 
 const App = () => {
 
   return (
-    <div>
-      <Navbar />       
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/details" element={<Details />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 };
 
