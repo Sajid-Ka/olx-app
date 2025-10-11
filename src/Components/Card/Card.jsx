@@ -4,7 +4,7 @@ import favorite from "../../assets/favorite.svg"
 const Card = ({items}) => {
     return (
         <div className="p-10 px-5 sm:px-15 md:px-30 lg:px-40 min-h-screen">
-             <h1 style={{color:"#002f34"}} className="text-3xl font-bold mb-5">
+             <h1 style={{color:"#002f34"}} className="text-2xl font-bold-sm mb-5">
                 Fresh recommendations
             </h1>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 pt-5">
@@ -26,7 +26,7 @@ const Card = ({items}) => {
 
                             {/* DisplayDetails */}
                             <div className="details p-1 pl-4 pr-4">
-                                <h1 style={{color:"#002f34"}} className="font-bold text-xl">{item.price}</h1>
+                                <h1 style={{color:"#002f34"}} className="font-bold text-xl">₹ {item.price}</h1>
                                 <p className="text-sm pt-2">{item.category}</p>
                                 <p className="pt-2">{item.title}</p>
 

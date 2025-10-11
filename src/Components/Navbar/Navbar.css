@@ -5,6 +5,9 @@
 nav {
     display: flex;
     align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
 }
 
 nav::-webkit-scrollbar {
@@ -24,6 +27,12 @@ li {
 }
 
 .sub-lists {
+    position: fixed;
+    top: 0px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 40;
     overflow: auto;
     overflow-y: hidden;
 }
@@ -32,7 +41,11 @@ li {
     display: none;
 }
 
-@media (max-width:767px) {
+body {
+    padding-top: 104px;
+}
+
+@media (max-width: 767px) {
     .location-search {
         display: none;
     }
@@ -42,7 +55,7 @@ li {
     }
 }
 
-@media (max-width:458px) {
+@media (max-width: 458px) {
     .main-search {
         display: none;
     }
