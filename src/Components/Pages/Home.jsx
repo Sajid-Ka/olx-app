@@ -5,6 +5,8 @@ import Sell from "../Modal/Sell";
 import Card from "../Card/Card";
 import {ItemsContext} from "../Context/Item"
 import { fetchFromFirestore } from "../Firebase/Firebase";
+import PhoneCard from "../PhoneCard/PhoneCard";
+import Footer from "../Footer/Footer";
 
 const Home = () => {
     const [openModal, setModal] = useState(false);
@@ -40,7 +42,9 @@ const Home = () => {
             <Navbar toggleModal={toggleModal} toggleModalSell={toggleModalSell} />   
             <Login toggleModal={toggleModal} status={openModal} />
             <Sell setItems={itemsCtx.setItems} toggleModalSell={toggleModalSell} status={openModalSell} />
-            <Card items={itemsCtx.items || []} />
+            <Card items={itemsCtx.items || []} toggleModal={toggleModal} />
+            <PhoneCard />
+            <Footer />
         </div>
     )
 }

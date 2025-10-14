@@ -16,8 +16,6 @@ nav::-webkit-scrollbar {
 
 li {
     font-size: 15px;
-    padding-left: 10px;
-    padding-right: 10px;
     flex-shrink: 0;
     cursor: pointer;
 }
@@ -63,4 +61,13 @@ body {
     nav {
         justify-content: space-between;
     }
+}
+
+nav {
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+.main-search input {
+    max-width: 1200px;
 }

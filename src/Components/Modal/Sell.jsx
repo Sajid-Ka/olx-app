@@ -1,14 +1,14 @@
 import { Modal, ModalBody } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Input from "../Input/Input";
 import { UserAuth } from "../Context/Auth";
 import { addDoc, collection } from "firebase/firestore";
-import { fetchFromFirestore, fireStore } from "../Firebase/Firebase";
+import { fetchFromFirestore, fireStore, updateProduct } from "../Firebase/Firebase";
 import fileUpload from "../../assets/fileUpload.svg";
 import loading from "../../assets/loading.gif";
 import close from "../../assets/close.svg";
 
-const Sell = ({ toggleModalSell, status, setItems }) => {
+const Sell = ({ toggleModalSell, status, setItems, editItem }) => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
@@ -17,6 +17,23 @@ const Sell = ({ toggleModalSell, status, setItems }) => {
   const [submitting, setSubmitting] = useState(false);
 
   const auth = UserAuth();
+  const isEditMode = !!editItem;
+
+  useEffect(() => {
+    if (editItem) {
+      setTitle(editItem.title || "");
+      setCategory(editItem.category || "");
+      setPrice(editItem.price?.toString() || "");
+      setDescription(editItem.description || "");
+      setImage(null); 
+    } else {
+      setTitle("");
+      setCategory("");
+      setPrice("");
+      setDescription("");
+      setImage(null);
+    }
+  }, [editItem]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -42,36 +59,42 @@ const Sell = ({ toggleModalSell, status, setItems }) => {
     const parsedPrice = parseFloat(price);
     const trimmedDescription = description.trim();
 
-    if (!trimmedTitle || !trimmedCategory || !price || !trimmedDescription || !image) {
-      alert("All fields are required, including an image");
+    if (!trimmedTitle || !trimmedCategory || !price || !trimmedDescription) {
+      alert("All fields are required");
       setSubmitting(false);
       return;
     }
 
+    let imageUrl = isEditMode ? editItem.imageUrl : null;
+
     try {
-  
-      const formData = new FormData();
-      formData.append("file", image);
-      formData.append("upload_preset", "olx_clone_upload"); 
-      formData.append("cloud_name", "dy23pysw6"); 
+      if (image) {
+        const formData = new FormData();
+        formData.append("file", image);
+        formData.append("upload_preset", "olx_clone_upload");
+        formData.append("cloud_name", "dy23pysw6");
 
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dy23pysw6/image/upload", 
-        {
-          method: "POST",
-          body: formData,
+        const response = await fetch(
+          "https://api.cloudinary.com/v1_1/dy23pysw6/image/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to upload image to Cloudinary");
         }
-      );
 
-      if (!response.ok) {
-        throw new Error("Failed to upload image to Cloudinary");
+        const data = await response.json();
+        imageUrl = data.secure_url;
+      } else if (!isEditMode) {
+        alert("Image is required for new products");
+        setSubmitting(false);
+        return;
       }
 
-      const data = await response.json();
-      const imageUrl = data.secure_url; 
-
-      
-      await addDoc(collection(fireStore, "Products"), {
+      const productData = {
         title: trimmedTitle,
         category: trimmedCategory,
         price: parsedPrice,
@@ -79,14 +102,19 @@ const Sell = ({ toggleModalSell, status, setItems }) => {
         imageUrl,
         userId: auth.user.uid,
         userName: auth.user.displayName || "Anonymous",
-        createAt: new Date().toDateString(),
-      });
+        createAt: isEditMode ? editItem.createAt : new Date().toDateString(),
+      };
 
-      
+      if (isEditMode) {
+        const success = await updateProduct(editItem.id, productData);
+        if (!success) throw new Error("Failed to update product");
+      } else {
+        await addDoc(collection(fireStore, "Products"), productData);
+      }
+
       const datas = await fetchFromFirestore();
       setItems(datas);
 
-      
       setImage(null);
       setTitle("");
       setCategory("");
@@ -94,12 +122,14 @@ const Sell = ({ toggleModalSell, status, setItems }) => {
       setDescription("");
       toggleModalSell();
     } catch (error) {
-      console.error("Error adding item: ", error);
-      alert("Failed to add item. Please try again.");
+      console.error("Error saving product: ", error);
+      alert("Failed to save product. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const showImagePreview = image || (isEditMode && editItem?.imageUrl);
 
   return (
     <div>
@@ -126,36 +156,47 @@ const Sell = ({ toggleModalSell, status, setItems }) => {
             src={close}
             className="w-6 absolute z-10 top-6 right-8 cursor-pointer"
           />
-
           <div className="p-6 pl-8 pr-8 pb-8">
-            <p className="font-bold text-lg mb-3">Sell Item</p>
-
+            <p className="font-bold text-lg mb-3">{isEditMode ? "Edit Item" : "Sell Item"}</p>
             <form onSubmit={handleSubmit}>
-              <Input setInput={setTitle} placeholder="Title" />
-              <Input setInput={setCategory} placeholder="Category" />
-              <Input setInput={setPrice} placeholder="Price" type="number" />
-              <Input setInput={setDescription} placeholder="Description" />
+              <Input setInput={setTitle} placeholder="Title" value={title} />
+              <Input setInput={setCategory} placeholder="Category" value={category} />
+              <Input setInput={setPrice} placeholder="Price" type="number" value={price} />
+              <Input setInput={setDescription} placeholder="Description" value={description} />
 
-              <div>
-                {image ? (
-                  <div className="relative h-40 sm:h-60 w-full flex justify-center border-2 border-black border-solid rounded-md overflow-hidden">
-                    <img className="object-contain" src={URL.createObjectURL(image)} alt="" />
-                  </div>
+              <div className="relative h-40 sm:h-60 w-full border-2 border-black border-solid rounded-md overflow-hidden">
+                {showImagePreview ? (
+                  <>
+                    <img
+                      className="object-contain h-full w-full"
+                      src={image ? URL.createObjectURL(image) : editItem?.imageUrl}
+                      alt="Preview"
+                    />
+                    <input
+                      onChange={handleImageUpload}
+                      type="file"
+                      accept="image/*"
+                      className="absolute inset-0 h-full w-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                      <p className="text-white text-sm">Click to replace image</p>
+                    </div>
+                  </>
                 ) : (
-                  <div className="relative h-40 sm:h-60 w-full border-2 border-black border-solid rounded-md">
+                  <>
                     <input
                       onChange={handleImageUpload}
                       type="file"
                       accept="image/*"
                       className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-                      required
+                      required={!isEditMode}
                     />
                     <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] flex flex-col items-center">
                       <img className="w-12" src={fileUpload} alt="" />
                       <p className="text-center text-sm pt-2">Click to upload images</p>
                       <p className="text-center text-sm pt-2">SVG, PNG, JPG</p>
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
 
@@ -171,7 +212,7 @@ const Sell = ({ toggleModalSell, status, setItems }) => {
                       style={{ backgroundColor: "#002f34" }}
                       type="submit"
                     >
-                      Sell Item
+                      {isEditMode ? "Update Item" : "Sell Item"}
                     </button>
                   </div>
                 )}

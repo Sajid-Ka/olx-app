@@ -1,9 +1,10 @@
-const Input = ({setInput,placeholder,type="text"}) => {
+const Input = ({setInput,placeholder,type="text" ,value = ""}) => {
 
     return (
         <div className="pt-2 w-full relative">
             <input 
                 type={type}
+                value={value}
                 onChange={(e) => setInput(e.target.value)}
                 required={true}
                 className="w-full border-2 border-black rounded-md p-3 pt-4 pb-2 focus:outline-none peer" 

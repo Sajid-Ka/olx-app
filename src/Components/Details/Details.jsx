@@ -4,6 +4,7 @@ import { ItemsContext } from "../Context/Item";
 import Navbar from "../Navbar/Navbar";
 import Login from "../Modal/Login";
 import Sell from "../Modal/Sell";
+import Footer from "../Footer/Footer"
 
 const Details = () => {
 
@@ -45,8 +46,12 @@ const Details = () => {
                     </div>
                 </div>
             </div>
+            <div className="pb-32">
+
+            </div>
 
             <Sell setItems={itemsCtx.setItems} toggleModalSell={toggleModalSell} status={openModalSell} />
+            <Footer />
         </div>
     )
 
