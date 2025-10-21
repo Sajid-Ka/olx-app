@@ -71,11 +71,11 @@ const Sell = ({ toggleModalSell, status, setItems, editItem }) => {
       if (image) {
         const formData = new FormData();
         formData.append("file", image);
-        formData.append("upload_preset", "olx_clone_upload");
-        formData.append("cloud_name", "dy23pysw6");
+        formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+        formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME);
 
         const response = await fetch(
-          "https://api.cloudinary.com/v1_1/dy23pysw6/image/upload",
+          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
           {
             method: "POST",
             body: formData,

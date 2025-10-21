@@ -5,12 +5,12 @@ import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc, updateDoc, q
 import { use } from "react";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyALeSDvpskjOp6cw_1F9wIT6VI_SyToAg0",
-  authDomain: "olx-clone-77082.firebaseapp.com",
-  projectId: "olx-clone-77082",
-  storageBucket: "olx-clone-77082.firebasestorage.app",
-  messagingSenderId: "1064621628898",
-  appId: "1:1064621628898:web:443b5d8669c2427c3d2dbb"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
